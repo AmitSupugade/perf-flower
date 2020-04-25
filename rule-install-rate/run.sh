@@ -7,7 +7,7 @@
 #
 
 iface=
-rules=40000
+rules=100000
 skip=""   # skip_hw / skip_sw   (place holder, neither are supported :)
 batchfile=tc-rules.batch
 
@@ -88,10 +88,10 @@ check_perf()
 		exit 1
 	fi
 
-	if perf probe -L kmalloc >& /dev/null; then
+	if perf probe -L __kmalloc >& /dev/null; then
 		return
 	fi
-	if perf probe -s /lib/modules/$(uname -r)/source/ -L kmalloc; then
+	if perf probe -s /lib/modules/$(uname -r)/source/ -L __kmalloc; then
 		return
 	fi
 
@@ -126,6 +126,14 @@ EOF
 	echo "Generated $rules rules in $((e-s)) seconds."
 }
 
+get_multiple_batch() {
+	size=$((rules/4))
+	head -n $size $batchfile > cpu1.batch
+	sed -n -e $((size+1)),$((size*2))p $batchfile > cpu2.batch
+	sed -n -e $((size*2+1)),$((size*3))p $batchfile > cpu3.batch
+	tail -n $size $batchfile > cpu4.batch
+}
+
 prep_batch()
 {
 	if [ ! -f $batchfile ]; then
@@ -139,6 +147,7 @@ prep_batch()
 		generate_batch
 	fi
 }
+
 
 cleanup()
 {
@@ -166,8 +175,26 @@ main()
 	check_system
 	cleanup
 	prep_batch
-	do_test
-	generate_report
+	get_multiple_batch
+	#do_test
+	#generate_report
+
+	modprobe cls_flower
+
+	../rate-monitor/perf-probes.sh	
+	perf record -e probe:* -aR -- sleep 200& 
+	echo "Adding flows."
+	echo 3 > /proc/sys/vm/drop_caches
+
+	#tc -b $batchfile
+	for cpu in {1,2,3,4}; do 
+	    echo $cpu
+	    tc -b cpu$cpu.batch &
+	done
+
+	sleep 205
+	echo "Added flows."
+	../rate-monitor/perf-plot.sh 
 }
 
 main "$@"
