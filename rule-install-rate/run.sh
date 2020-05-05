@@ -192,7 +192,7 @@ main()
 	    tc -b cpu$cpu.batch &
 	done
 
-	sleep 205
+	sleep 230
 	echo "Added flows."
 	../rate-monitor/perf-plot.sh 
 }
