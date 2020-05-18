@@ -181,18 +181,25 @@ main()
 
 	modprobe cls_flower
 
-	../rate-monitor/perf-probes.sh	
-	perf record -e probe:* -aR -- sleep 200& 
+	../rate-monitor/perf-probes.sh
+	done=$(mktemp)
+	touch $done
+	perf record -e probe:*,flower:* -aR -- inotifywait -e delete $done &
+	
+	perf_pid=$!
+	pids=
 	echo "Adding flows."
 	echo 3 > /proc/sys/vm/drop_caches
 
-	#tc -b $batchfile
 	for cpu in {1,2,3,4}; do 
 	    echo $cpu
 	    tc -b cpu$cpu.batch &
+	    pids="$pids $!"
 	done
+	wait $pids
+	rm -f $done
+	wait $perf_pid
 
-	sleep 230
 	echo "Added flows."
 	../rate-monitor/perf-plot.sh 
 }
