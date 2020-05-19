@@ -201,7 +201,7 @@ main()
 	wait $perf_pid
 
 	echo "Added flows."
-	./perf-plot.sh 
+	#./perf-plot.sh   #Script called in the test. 
 }
 
 main "$@"
