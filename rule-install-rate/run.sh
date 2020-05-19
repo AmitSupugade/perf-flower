@@ -184,7 +184,7 @@ main()
 	../rate-monitor/perf-probes.sh
 	done=$(mktemp)
 	touch $done
-	perf record -e probe:* -e flower:* -aR -- inotifywait -e delete $done &
+	perf record -e flower:* -e probe:* -aR -- inotifywait -e delete $done &
 	
 	perf_pid=$!
 	pids=
