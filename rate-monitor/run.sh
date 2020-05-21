@@ -184,7 +184,7 @@ main()
 	./perf-probes.sh
 	done=$(mktemp)
 	touch $done
-	perf record -e probe:* -aR -- inotifywait -e delete $done & > perf.data
+	perf record -e probe:* -o perf.data -aR -- inotifywait -e delete $done &
 	
 	perf_pid=$!
 	pids=
@@ -201,7 +201,7 @@ main()
 	wait $perf_pid
 
 	echo "Added flows."
-	./perf-plot.sh   #Script called in the test. 
+	./perf-plot.sh > /tmp/run.data #Script called in the test. 
 
 : <<'END'
 
