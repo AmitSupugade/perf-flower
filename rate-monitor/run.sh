@@ -181,11 +181,10 @@ main()
 
 	modprobe cls_flower
 
-: <<'END'
 	./perf-probes.sh
 	done=$(mktemp)
 	touch $done
-	perf record -e probe:* -aR -- inotifywait -e delete $done &
+	perf record -e probe:* -e cpu-clock -aR -- inotifywait -e delete $done &
 	
 	perf_pid=$!
 	pids=
@@ -202,8 +201,9 @@ main()
 	wait $perf_pid
 
 	echo "Added flows."
-	#./perf-plot.sh   #Script called in the test. 
-END
+	./perf-plot.sh   #Script called in the test. 
+
+: <<'END'
 
 	./perf-probes.sh
 	perf record -e probe:* -aR -- sleep 200&
@@ -219,6 +219,7 @@ END
 	sleep 230
 	echo "Added flows."
 	./perf-plot.sh > /tmp/run.data
+END
 }
 
 main "$@"
