@@ -218,6 +218,7 @@ END
 
 	sleep 230
 	echo "Added flows."
+	./perf-plot.sh > /tmp/run.data
 }
 
 main "$@"
