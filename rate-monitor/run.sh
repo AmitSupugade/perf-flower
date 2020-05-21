@@ -181,6 +181,7 @@ main()
 
 	modprobe cls_flower
 
+: <<'END'
 	./perf-probes.sh
 	done=$(mktemp)
 	touch $done
@@ -202,6 +203,21 @@ main()
 
 	echo "Added flows."
 	#./perf-plot.sh   #Script called in the test. 
+END
+
+	./perf-probes.sh
+	perf record -e probe:* -aR -- sleep 200&
+
+	echo "Adding flows."
+        echo 3 > /proc/sys/vm/drop_caches
+
+        for cpu in {1,2,3,4}; do
+            echo $cpu
+            tc -b cpu$cpu.batch &
+        done
+
+	sleep 230
+	echo "Added flows."
 }
 
 main "$@"
