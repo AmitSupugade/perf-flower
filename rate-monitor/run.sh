@@ -184,7 +184,7 @@ main()
 	./perf-probes.sh
 	done=$(mktemp)
 	touch $done
-	perf record -e probe:* -o perf.data -aR -- inotifywait -e delete $done &
+	perf record -e probe:* -aR -- inotifywait -e delete $done &
 	
 	perf_pid=$!
 	pids=
