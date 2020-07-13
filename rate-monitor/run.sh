@@ -152,11 +152,11 @@ prep_batch()
 cleanup()
 {
 	echo "Cleaning up ingress qdisc."
-	#echo "  removing it..."
-	#tc qdisc del dev $iface ingress || :
-	#echo "  adding it back..."
-	#tc qdisc add dev $iface ingress
-	tc filter del dev $iface
+	echo "  removing it..."
+	tc qdisc del dev $iface ingress || :
+	echo "  adding it back..."
+	tc qdisc add dev $iface ingress
+	#tc filter flush dev $iface
 	echo "Done."
 }
 
