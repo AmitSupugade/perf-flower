@@ -156,7 +156,7 @@ cleanup()
 	#tc qdisc del dev $iface ingress || :
 	#echo "  adding it back..."
 	#tc qdisc add dev $iface ingress
-	tc filter flush dev $iface
+	tc filter del dev $iface
 	echo "Done."
 }
 
